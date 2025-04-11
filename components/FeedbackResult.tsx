@@ -1,5 +1,3 @@
-// components/FeedbackResult.tsx
-
 type FeedbackResultProps = {
   essay: string;
   corrections: {
@@ -20,7 +18,9 @@ type FeedbackResultProps = {
 };
 
 const FeedbackResult = ({ essay, corrections, scores }: FeedbackResultProps) => {
-  const sorted = [...corrections].sort((a, b) => a.start - b.start);
+  const safeCorrections = Array.isArray(corrections) ? corrections : [];
+  const sorted = [...safeCorrections].sort((a, b) => a.start - b.start);
+
   let result: React.ReactNode[] = [];
   let current = 0;
 
@@ -29,13 +29,15 @@ const FeedbackResult = ({ essay, corrections, scores }: FeedbackResultProps) => 
       result.push(<span key={`text-${index}`}>{essay.slice(current, correction.start)}</span>);
     }
 
-    if (correction.type === "replaced") {
-      result.push(
-        <span key={`rep-${index}`} title={correction.reason} style={{ backgroundColor: "yellow" }}>
-          {correction.suggestion}
-        </span>
-      );
-    }
+    result.push(
+      <span
+        key={`corr-${index}`}
+        title={correction.reason}
+        style={{ backgroundColor: "yellow", textDecoration: "underline", padding: "0 4px" }}
+      >
+        {correction.suggestion}
+      </span>
+    );
 
     current = correction.end;
   });
@@ -44,15 +46,16 @@ const FeedbackResult = ({ essay, corrections, scores }: FeedbackResultProps) => 
 
   return (
     <div style={{ marginTop: "2rem" }}>
-      <h2>Feedback:</h2>
-      <div>{result}</div>
-      <h3>Band Scores</h3>
+      <h2>🖍️ Highlighted Feedback</h2>
+      <p style={{ border: "1px solid #ccc", padding: "1rem", borderRadius: "8px" }}>{result}</p>
+
+      <h3>📊 Band Score</h3>
       <ul>
         <li>Task Response: {scores.task_response}</li>
         <li>Coherence: {scores.coherence}</li>
         <li>Lexical: {scores.lexical}</li>
         <li>Grammar: {scores.grammar}</li>
-        <li><strong>Overall: {scores.overall}</strong></li>
+        <li><strong>Overall Band: {scores.overall}</strong></li>
       </ul>
     </div>
   );
