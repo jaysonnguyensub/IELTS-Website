@@ -1,26 +1,9 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+import { NextApiRequest, NextApiResponse } from "next";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ message: "Method not allowed" });
-  }
+const examinerPrompt = `
+You are a professional IELTS Writing Examiner.
 
-  const { essay } = req.body;
-
-  try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo", // tạm thời dùng GPT-3.5
-        temperature: 0.3,
-        messages: [
-          {
-            role: "system",
-            content: `You are an IELTS Writing examiner. Return ONLY a JSON format feedback like this:
+Your task is to assess a student's IELTS Writing Task 1 essay. Analyze the grammar, vocabulary, coherence, and task achievement. Then return ONLY JSON in this format:
 
 {
   "corrections": [
@@ -42,29 +25,46 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 }
 
-Return only JSON. No explanation.`,
-          },
-          {
-            role: "user",
-            content: essay,
-          },
+Notes:
+- `corrections` should include real suggestions with `reason`, `text`, `suggestion`, `start`, and `end`.
+- Only return the JSON. Do not explain.
+`;
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ message: "Method not allowed" });
+  }
+
+  const { essay } = req.body;
+
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-3.5-turbo",
+        temperature: 0.3,
+        messages: [
+          { role: "system", content: examinerPrompt },
+          { role: "user", content: essay }
         ],
       }),
     });
 
     const data = await response.json();
+    const gptText = data.choices?.[0]?.message?.content || "";
 
-    console.log("GPT RAW RESPONSE:", data);
+    console.log("GPT RAW:", gptText);
 
-    // Lấy text và parse
-    const gptText = data.choices?.[0]?.message?.content || "{}";
-    const feedback = JSON.parse(gptText);
+    // try parse JSON safely
+    const parsed = JSON.parse(gptText);
+    res.status(200).json(parsed);
 
-    console.log("GPT Feedback:", feedback);
-
-    res.status(200).json(feedback);
-  } catch (error: any) {
-    console.error("GPT error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+  } catch (e: any) {
+    console.error("GPT error:", e);
+    res.status(500).json({ error: "GPT error" });
   }
 }
