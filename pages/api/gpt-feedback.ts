@@ -26,7 +26,7 @@ Your task is to assess a student's IELTS Writing Task 1 essay. Analyze the gramm
 }
 
 Notes:
-- `corrections` should include real suggestions with `reason`, `text`, `suggestion`, `start`, and `end`.
+- The "corrections" should include real suggestions with "reason", "text", "suggestion", "start", and "end".
 - Only return the JSON. Do not explain.
 `;
 
@@ -49,7 +49,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         temperature: 0.3,
         messages: [
           { role: "system", content: examinerPrompt },
-          { role: "user", content: essay }
+          { role: "user", content: essay },
         ],
       }),
     });
@@ -57,14 +57,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const data = await response.json();
     const gptText = data.choices?.[0]?.message?.content || "";
 
-    console.log("GPT RAW:", gptText);
+    console.log("🧠 GPT RAW TEXT:", gptText);
 
-    // try parse JSON safely
     const parsed = JSON.parse(gptText);
     res.status(200).json(parsed);
-
   } catch (e: any) {
     console.error("GPT error:", e);
-    res.status(500).json({ error: "GPT error" });
+    res.status(500).json({ error: "GPT error", details: e.message });
   }
 }
