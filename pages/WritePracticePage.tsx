@@ -15,8 +15,12 @@ const WritePracticePage = () => {
       console.log("🧠 GPT Feedback:", feedback); // ✅ Log kết quả thật từ GPT
       setResult(feedback);
     } catch (e) {
-      alert("Lỗi khi gọi GPT: " + e.message);
-    } finally {
+  if (e instanceof Error) {
+    alert("Lỗi khi gọi GPT: " + e.message);
+  } else {
+    alert("Lỗi không xác định");
+  }
+} finally {
       setLoading(false);
     }
   };

@@ -8,10 +8,8 @@ export const getFeedbackFromGPT = async ({ essay }: { essay: string }) => {
   });
 
   const gptResponse = await res.json();
-
   console.log("📩 GPT RAW RESPONSE:", gptResponse);
 
-  // Tạm trả về mock để frontend không lỗi
   return {
     corrections: [],
     bandScores: {
