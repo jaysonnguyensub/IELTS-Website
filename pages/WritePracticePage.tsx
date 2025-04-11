@@ -14,7 +14,7 @@ const WritePracticePage = () => {
       const feedback = await getFeedbackFromGPT({ essay });
       setResult(feedback);
     } catch (e) {
-      alert("Error receiving feedback.");
+      alert("Lỗi khi chấm điểm");
     } finally {
       setLoading(false);
     }

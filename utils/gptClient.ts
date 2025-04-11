@@ -1,5 +1,3 @@
-// utils/gptClient.ts
-
 export const getFeedbackFromGPT = async ({ essay }: { essay: string }) => {
   return {
     corrections: [
