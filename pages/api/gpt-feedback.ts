@@ -1,15 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method not allowed" });
-  }
-
-  if (!process.env.OPENAI_API_KEY) {
-    return res.status(500).json({ message: "Missing OpenAI API key" });
   }
 
   const { essay } = req.body;
@@ -22,12 +15,12 @@ export default async function handler(
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo",
+        model: "gpt-3.5-turbo", // tạm thời dùng GPT-3.5
         temperature: 0.3,
         messages: [
           {
             role: "system",
-            content: `You are a professional IELTS Writing Examiner. Please read the student's essay and return feedback in the following JSON format:
+            content: `You are an IELTS Writing examiner. Return ONLY a JSON format feedback like this:
 
 {
   "corrections": [
@@ -49,7 +42,7 @@ export default async function handler(
   }
 }
 
-Only return JSON. No explanation.`,
+Return only JSON. No explanation.`,
           },
           {
             role: "user",
@@ -59,19 +52,19 @@ Only return JSON. No explanation.`,
       }),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      return res
-        .status(response.status)
-        .json({ message: "OpenAI API error", error: errorData });
-    }
-
     const data = await response.json();
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(500).json({
-      message: "Unexpected server error",
-      error: (error as Error).message || "Unknown error",
-    });
+
+    console.log("GPT RAW RESPONSE:", data);
+
+    // Lấy text và parse
+    const gptText = data.choices?.[0]?.message?.content || "{}";
+    const feedback = JSON.parse(gptText);
+
+    console.log("GPT Feedback:", feedback);
+
+    res.status(200).json(feedback);
+  } catch (error: any) {
+    console.error("GPT error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 }
