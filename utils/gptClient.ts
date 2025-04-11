@@ -1,16 +1,19 @@
 export const getFeedbackFromGPT = async ({ essay }: { essay: string }) => {
-  const start = essay.indexOf("is");
+  const res = await fetch("/api/gpt-feedback", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ essay }),
+  });
+
+  const gptResponse = await res.json();
+
+  console.log("📩 GPT RAW RESPONSE:", gptResponse);
+
+  // Tạm trả về mock để frontend không lỗi
   return {
-    corrections: [
-      {
-        type: "replaced",
-        text: "is",
-        suggestion: "are",
-        reason: "Subject-verb agreement",
-        start,
-        end: start + 2,
-      },
-    ],
+    corrections: [],
     bandScores: {
       task_response: 6,
       coherence: 6,
