@@ -1,26 +1,28 @@
-type FeedbackResultProps = {
+interface Correction {
+  type: "replaced";
+  text: string;
+  suggestion: string;
+  reason: string;
+  start: number;
+  end: number;
+}
+
+interface BandScore {
+  task_response: number;
+  coherence: number;
+  lexical: number;
+  grammar: number;
+  overall: number;
+}
+
+interface Props {
   essay: string;
-  corrections: {
-    type: "deleted" | "added" | "replaced";
-    text: string;
-    suggestion?: string;
-    reason: string;
-    start: number;
-    end: number;
-  }[];
-  scores: {
-    task_response: number;
-    coherence: number;
-    lexical: number;
-    grammar: number;
-    overall: number;
-  };
-};
+  corrections: Correction[];
+  scores: BandScore;
+}
 
-const FeedbackResult = ({ essay, corrections, scores }: FeedbackResultProps) => {
-  const safeCorrections = Array.isArray(corrections) ? corrections : [];
-  const sorted = [...safeCorrections].sort((a, b) => a.start - b.start);
-
+const FeedbackResult = ({ essay, corrections, scores }: Props) => {
+  const sorted = corrections.sort((a, b) => a.start - b.start);
   let result: React.ReactNode[] = [];
   let current = 0;
 
@@ -28,17 +30,15 @@ const FeedbackResult = ({ essay, corrections, scores }: FeedbackResultProps) => 
     if (current < correction.start) {
       result.push(<span key={`text-${index}`}>{essay.slice(current, correction.start)}</span>);
     }
-
     result.push(
       <span
         key={`corr-${index}`}
+        style={{ backgroundColor: "yellow", padding: "0 4px" }}
         title={correction.reason}
-        style={{ backgroundColor: "yellow", textDecoration: "underline", padding: "0 4px" }}
       >
         {correction.suggestion}
       </span>
     );
-
     current = correction.end;
   });
 
@@ -46,16 +46,15 @@ const FeedbackResult = ({ essay, corrections, scores }: FeedbackResultProps) => 
 
   return (
     <div style={{ marginTop: "2rem" }}>
-      <h2>🖍️ Highlighted Feedback</h2>
-      <p style={{ border: "1px solid #ccc", padding: "1rem", borderRadius: "8px" }}>{result}</p>
-
-      <h3>📊 Band Score</h3>
+      <h2>🖍️ Feedback</h2>
+      <p>{result}</p>
+      <h3>📊 Band Scores</h3>
       <ul>
         <li>Task Response: {scores.task_response}</li>
         <li>Coherence: {scores.coherence}</li>
-        <li>Lexical: {scores.lexical}</li>
+        <li>Lexical Resource: {scores.lexical}</li>
         <li>Grammar: {scores.grammar}</li>
-        <li><strong>Overall Band: {scores.overall}</strong></li>
+        <li><strong>Overall: {scores.overall}</strong></li>
       </ul>
     </div>
   );

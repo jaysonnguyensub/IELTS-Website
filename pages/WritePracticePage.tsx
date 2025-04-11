@@ -1,6 +1,6 @@
 import { useState } from "react";
-import FeedbackResult from "@/components/FeedbackResult";
-import { getFeedbackFromGPT } from "@/utils/gptClient";
+import FeedbackResult from "../components/FeedbackResult";
+import { getFeedbackFromGPT } from "../utils/gptClient";
 
 const WritePracticePage = () => {
   const [essay, setEssay] = useState("");
@@ -30,11 +30,9 @@ const WritePracticePage = () => {
         placeholder="Write your essay here..."
         style={{ width: "100%", padding: "1rem", fontSize: "1rem" }}
       />
-
       <button onClick={handleSubmit} disabled={loading} style={{ marginTop: "1rem" }}>
         {loading ? "Scoring..." : "Get Feedback"}
       </button>
-
       {result && (
         <FeedbackResult
           essay={essay}

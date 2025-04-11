@@ -1,4 +1,5 @@
 export const getFeedbackFromGPT = async ({ essay }: { essay: string }) => {
+  const start = essay.indexOf("is");
   return {
     corrections: [
       {
@@ -6,8 +7,8 @@ export const getFeedbackFromGPT = async ({ essay }: { essay: string }) => {
         text: "is",
         suggestion: "are",
         reason: "Subject-verb agreement",
-        start: essay.indexOf("is"),
-        end: essay.indexOf("is") + 2,
+        start,
+        end: start + 2,
       },
     ],
     bandScores: {
