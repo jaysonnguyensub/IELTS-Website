@@ -1,0 +1,1 @@
+// Sample placeholder component/page for IELTS AI
