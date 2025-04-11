@@ -5,6 +5,10 @@ export default async function handler(req, res) {
 
   const { essay } = req.body;
 
+  if (!process.env.OPENAI_API_KEY) {
+    return res.status(500).json({ message: "Missing OpenAI API key" });
+  }
+
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -12,13 +16,12 @@ export default async function handler(req, res) {
       Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: "gpt-3.5-turbo", // ✅ Tạm thời dùng GPT 3.5
+      model: "gpt-3.5-turbo",
       temperature: 0.3,
       messages: [
         {
           role: "system",
-          content: `You are a professional IELTS Writing Examiner. 
-Please read the student's essay and return feedback in the following JSON format:
+          content: `You are a professional IELTS Writing Examiner. Please read the student's essay and return feedback in the following JSON format:
 
 {
   "corrections": [
@@ -49,6 +52,11 @@ Only return JSON. No explanation.`,
       ],
     }),
   });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    return res.status(response.status).json({ message: "OpenAI API error", error: errorData });
+  }
 
   const data = await response.json();
   res.status(200).json(data);
