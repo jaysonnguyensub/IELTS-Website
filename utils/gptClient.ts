@@ -1,3 +1,4 @@
+// File: utils/gptClient.ts
 export const getFeedbackFromGPT = async ({ essay }: { essay: string }) => {
   try {
     const res = await fetch("/api/gpt-feedback", {
@@ -10,23 +11,21 @@ export const getFeedbackFromGPT = async ({ essay }: { essay: string }) => {
 
     const data = await res.json();
 
-    // Nếu là JSON trực tiếp (có bandScores/corrections), trả luôn
+    // Nếu phản hồi là JSON gốc từ GPT thì trả về luôn
     if (data?.bandScores && data?.corrections) {
-      console.log("🧠 GPT Feedback (JSON format):", data);
+      console.log("✅ Parsed JSON (direct):", data);
       return data;
     }
 
-    // Nếu là phản hồi dạng raw message.content từ GPT
+    // Nếu GPT trả về phản hồi dạng chuỗi JSON trong content
     const raw = data?.choices?.[0]?.message?.content;
-    if (!raw) throw new Error("Empty GPT response");
-
-    console.log("🧠 GPT RAW TEXT:", raw);
+    if (!raw) throw new Error("No content returned from GPT");
 
     const parsed = JSON.parse(raw);
-    console.log("✅ Parsed GPT JSON:", parsed);
+    console.log("✅ Parsed JSON (from GPT string):", parsed);
     return parsed;
   } catch (e: any) {
-    console.error("❌ Error while fetching GPT feedback:", e.message);
+    console.error("❌ GPT fetch error:", e.message);
     return {
       corrections: [],
       bandScores: {
