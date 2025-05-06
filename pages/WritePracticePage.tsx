@@ -47,7 +47,7 @@ export default function WritePracticePage() {
   }, [feedback]);
 
   return (
-    <div style={{ maxWidth: "900px", margin: "2rem auto", padding: "1rem" }}>
+    <div style={{ maxWidth: "900px", margin: "2rem auto", padding: "1rem", fontFamily: "Inter, sans-serif" }}>
       <h1>📝 IELTS Task 1 Practice</h1>
 
       <label htmlFor="essay" style={{ fontWeight: 600 }}>Your Essay</label>

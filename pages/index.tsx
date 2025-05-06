@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 const HomePage = () => {
   return (
-    <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
+    <div style={{ padding: "2rem", fontFamily: "Inter, sans-serif" }}>
       <h1>🚀 Welcome to IELTS AI Writing MVP</h1>
       <p>Select a feature to get started:</p>
       <ul>
