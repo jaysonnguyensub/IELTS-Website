@@ -1,5 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Cập nhật font cho toàn bộ website */
 body {
-    font-family: 'Inter', sans-serif;
-  }
-  
+  font-family: 'Inter', sans-serif;
+}
